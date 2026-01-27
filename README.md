@@ -388,7 +388,7 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 ## 👥 Autores
 
-- **Tu Nombre** - *Desarrollo inicial* - [tu-usuario](https://github.com/tu-usuario)
+- **Miguel Angel Hernández Cervantes** - *Desarrollo inicial* - [MonkyFlip](https://github.com/MonkyFlip)
 
 ---
 
@@ -402,8 +402,6 @@ Este proyecto está bajo la Licencia MIT. Ver [LICENSE](LICENSE) para más detal
 
 ## 📞 Contacto
 
-¿Preguntas? Contáctanos en: contacto@sgg.com
+¿Preguntas? Contáctanos en: miguelhercerv@gmail.com, miguelhercerv@outlook.com
 
 ---
-
-**Desarrollado con ❤️ usando FastAPI**
