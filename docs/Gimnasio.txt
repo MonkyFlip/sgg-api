@@ -1,0 +1,33 @@
+Sistema Gestor de Gimnasios -> SGG - api
+Este sistema constara de 2 partes: api y app web.
+
+En este momento desarrollaremos el api.
+
+El api se desarrollara usando el lenguaje de python con el framework de FastAPI y una base de datos mysql.
+
+El sistema debera hacer lo siguiente:
+- Gestión de Usuarios: CRUD´S, Perfiles, Pagos
+- Control de Acceso: Registrar entrada/salida
+- Gestión de Clases y Entrenadores: Si es que tienen clientes asociados para entrenamiento personal
+- Facturación y Pagos: Membresias, Productos(Suplementos, Merch del Gimnasio, etc).
+- Reportes y Estadisticas: Los clientes inscritos podran almacenar sus avances y aquellos que tengan un entrenador personal podran compartirlo  con el mismo para llevar un registro continuo
+- Sistema de Reservas
+- Control de Inventario: Maquinas, Discos, Mancuernas, Barras, etc.
+- Gestión de Roles: Super Admin, Admin, Entrenador, Cliente
+- Generación de Rurtinas: Rutina diaria para usuarios sin entrenador asignado y rutina personalizada a usuarios con entrenador personal.
+- Generación de Dietas: Los entrenadores podran asignar dietas a sus clientes asignados
+- Gestión de Gimnasios: Cada Gimnasio puede registrare y asignar sus usuarios, teniendo solo un Super Admin por Gimnasio
+==============
+
+El sistema se hara de esta forma:
+- API: Backedn de python con FastAPI y mysql
+- FrontEnd: App Web con React (para despliegue en AWS Amplify)
+
+==============
+
+El sistema quiero que pueda ser utilizado por multiples Gimnasios, no solo uno.
+
+==============
+
+Empecemos desarrollando el api.
+Primero generame una base de datos para mi proyecto, dime que tablas deberia tener con que campos.
