@@ -6,10 +6,10 @@ Clase base para todos los repositorios con operaciones CRUD genéricas
 from typing import Generic, TypeVar, Type, List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, asc
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from app.models.base import Base
-
-ModelType = TypeVar("ModelType", bound=Base)
+# TypeVar con bound genérico de SQLAlchemy
+ModelType = TypeVar("ModelType", bound=DeclarativeMeta)
 
 
 class BaseRepository(Generic[ModelType]):
