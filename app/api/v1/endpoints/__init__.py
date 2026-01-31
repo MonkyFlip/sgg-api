@@ -1,0 +1,42 @@
+"""Endpoints de la API V1"""
+from app.api.v1.endpoints import (
+    auth,
+    usuarios,
+    gimnasios,
+    roles,
+    membresias,
+    accesos,
+    entrenadores,
+    clases,
+    reservas,
+    productos,
+    facturas,
+    pagos,
+    inventario,
+    rutinas,
+    dietas,
+    progreso,
+    notificaciones,
+    reportes
+)
+
+__all__ = [
+    "auth",
+    "usuarios",
+    "gimnasios",
+    "roles",
+    "membresias",
+    "accesos",
+    "entrenadores",
+    "clases",
+    "reservas",
+    "productos",
+    "facturas",
+    "pagos",
+    "inventario",
+    "rutinas",
+    "dietas",
+    "progreso",
+    "notificaciones",
+    "reportes",
+]
