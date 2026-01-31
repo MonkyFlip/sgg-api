@@ -3,9 +3,9 @@ Configuración de la aplicación SGG-API
 Maneja todas las variables de entorno y configuraciones globales
 """
 
-from typing import List, Optional
-from pydantic_settings import BaseSettings
-from pydantic import Field, validator
+from typing import List, Optional, Union
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator, model_validator
 import secrets
 
 
@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     # APPLICATION
     # ============================================
     APP_NAME: str = "SGG-API"
+    PROJECT_NAME: str = "SGG-API"  # Alias para compatibilidad
     APP_VERSION: str = "1.0.0"
     APP_DESCRIPTION: str = "Sistema Gestor de Gimnasios - API"
     ENVIRONMENT: str = Field(default="development", pattern="^(development|staging|production)$")
@@ -35,11 +36,12 @@ class Settings(BaseSettings):
     # ============================================
     # DATABASE
     # ============================================
+    DATABASE_URL: Optional[str] = None  # Se puede pasar directamente en .env
     DB_HOST: str = "localhost"
     DB_PORT: int = 3306
-    DB_USER: str = "root" #sgg_user
+    DB_USER: str = "root"
     DB_PASSWORD: str = ""
-    DB_NAME: str = "sgg" #sgg_database
+    DB_NAME: str = "sgg"
     DB_ECHO: bool = False
     
     # Database Connection Pool
@@ -48,10 +50,20 @@ class Settings(BaseSettings):
     DB_POOL_TIMEOUT: int = 30
     DB_POOL_RECYCLE: int = 3600
     
-    @property
-    def DATABASE_URL(self) -> str:
-        """Construye la URL de conexión a MySQL"""
-        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}?charset=utf8mb4"
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def build_database_url(cls, v, info):
+        """Construye la URL de conexión a MySQL si no se proporciona"""
+        if v:
+            return v
+        # Construir desde componentes individuales
+        values = info.data
+        user = values.get("DB_USER", "root")
+        password = values.get("DB_PASSWORD", "")
+        host = values.get("DB_HOST", "localhost")
+        port = values.get("DB_PORT", 3306)
+        db_name = values.get("DB_NAME", "sgg")
+        return f"mysql+pymysql://{user}:{password}@{host}:{port}/{db_name}?charset=utf8mb4"
     
     # ============================================
     # SECURITY
@@ -64,7 +76,8 @@ class Settings(BaseSettings):
     # Password Hashing
     BCRYPT_ROUNDS: int = 12
     
-    @validator("SECRET_KEY")
+    @field_validator("SECRET_KEY", mode="after")
+    @classmethod
     def validate_secret_key(cls, v):
         """Valida que la SECRET_KEY sea segura en producción"""
         if len(v) < 32:
@@ -74,16 +87,23 @@ class Settings(BaseSettings):
     # ============================================
     # CORS
     # ============================================
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:3001"]
+    # Usar Union para aceptar tanto string como lista
+    CORS_ORIGINS: Union[str, List[str]] = Field(
+        default="http://localhost:3000,http://localhost:3001"
+    )
+    BACKEND_CORS_ORIGINS: Union[str, List[str]] = Field(
+        default="http://localhost:3000,http://localhost:3001"
+    )
     CORS_CREDENTIALS: bool = True
     CORS_METHODS: List[str] = ["*"]
     CORS_HEADERS: List[str] = ["*"]
     
-    @validator("CORS_ORIGINS", pre=True)
+    @field_validator("CORS_ORIGINS", "BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
     def parse_cors_origins(cls, v):
         """Parsea los orígenes de CORS si vienen como string"""
         if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
     # ============================================
@@ -128,9 +148,11 @@ class Settings(BaseSettings):
     DEFAULT_PAGE_SIZE: int = 20
     MAX_PAGE_SIZE: int = 100
     
-    @validator("DEFAULT_PAGE_SIZE")
-    def validate_page_size(cls, v, values):
+    @field_validator("DEFAULT_PAGE_SIZE", mode="after")
+    @classmethod
+    def validate_page_size(cls, v, info):
         """Valida que el tamaño de página por defecto no exceda el máximo"""
+        values = info.data
         max_size = values.get("MAX_PAGE_SIZE", 100)
         if v > max_size:
             raise ValueError(f"DEFAULT_PAGE_SIZE no puede ser mayor que MAX_PAGE_SIZE ({max_size})")
@@ -182,21 +204,20 @@ class Settings(BaseSettings):
     AUTO_BACKUP_ENABLED: bool = True
     BACKUP_HOUR: int = 2  # 2 AM
     
-    @validator("BACKUP_HOUR")
+    @field_validator("BACKUP_HOUR", mode="after")
+    @classmethod
     def validate_backup_hour(cls, v):
         """Valida que la hora de backup esté entre 0 y 23"""
         if not 0 <= v <= 23:
             raise ValueError("BACKUP_HOUR debe estar entre 0 y 23")
         return v
     
-    class Config:
-        """Configuración de Pydantic Settings"""
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = True
-        
-        # Permite usar propiedades computadas
-        arbitrary_types_allowed = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+        arbitrary_types_allowed=True
+    )
 
 
 # Instancia global de configuración

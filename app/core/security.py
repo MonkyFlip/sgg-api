@@ -45,11 +45,21 @@ def get_password_hash(password: str) -> str:
         
     Returns:
         str: Hash de la contraseña
+        
+    Note:
+        Bcrypt tiene un límite de 72 bytes. Contraseñas más largas
+        serán truncadas automáticamente.
     """
+    # Bcrypt solo acepta hasta 72 bytes
+    # Truncar si es necesario (aunque validate_password_strength debería prevenir esto)
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password = password_bytes[:72].decode('utf-8', errors='ignore')
+    
     return pwd_context.hash(password)
 
 
-def validate_password_strength(password: str) -> tuple[bool, str]:
+def validate_password_strength(password: str) -> bool:
     """
     Valida la fortaleza de una contraseña.
     
@@ -64,25 +74,29 @@ def validate_password_strength(password: str) -> tuple[bool, str]:
         password: Contraseña a validar
         
     Returns:
-        tuple: (es_valida, mensaje_error)
+        bool: True si es válida, False si no cumple requisitos
     """
+    # Bcrypt tiene límite de 72 bytes, truncar si es necesario
+    if len(password.encode('utf-8')) > 72:
+        return False
+    
     if len(password) < 8:
-        return False, "La contraseña debe tener al menos 8 caracteres"
+        return False
     
     if not any(char.isupper() for char in password):
-        return False, "La contraseña debe tener al menos una mayúscula"
+        return False
     
     if not any(char.islower() for char in password):
-        return False, "La contraseña debe tener al menos una minúscula"
+        return False
     
     if not any(char.isdigit() for char in password):
-        return False, "La contraseña debe tener al menos un número"
+        return False
     
     special_characters = "!@#$%^&*()_+-=[]{}|;:,.<>?"
     if not any(char in special_characters for char in password):
-        return False, "La contraseña debe tener al menos un carácter especial"
+        return False
     
-    return True, "Contraseña válida"
+    return True
 
 
 # ============================================
